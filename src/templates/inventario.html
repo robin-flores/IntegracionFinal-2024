@@ -1,0 +1,260 @@
+{% extends '/layouts/base-user.html' %}
+
+{% block title %}Productos{% endblock %}
+
+{% block customCSS %} 
+<link rel="stylesheet" href="{{ url_for('static', filename='css/general.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/inventario.css') }}">
+{% endblock %}
+
+{% block body %} 
+<main>
+    <header class="product-header">
+        <h2 class="pb-3 pt-2">INVENTARIO</h2>
+
+        <div class="search">
+            <form class="mb-2 search" role="search">
+                <input class="form-control me-2" id="search-prod" type="search" placeholder="Buscar producto" aria-label="Search" name="search_query">
+            </form>
+        </div>
+                
+        <div class="dropdown-product">
+            <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" id="dropdownProduct1" data-bs-toggle="dropdown" aria-expanded="false"> 
+                <strong>Ordenar por:</strong>
+            </a>
+            <ul class="dropdown-menu text-small shadow" aria-labelledby="dropdownProduct1">
+                <li><a class="dropdown-item" href="{{ url_for('show_prod', sort_by='nombre') }}">Nombre</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('show_prod', sort_by='descripcion') }}">Descripción</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('show_prod', sort_by='precio') }}">Precio</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('show_prod', sort_by='proveedor') }}">Proveedor</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('show_prod', sort_by='categoria') }}">Categoría</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('show_prod', sort_by='stock') }}">Stock</a></li>
+            </ul>
+        </div>
+    </header>                
+        {% if g.user and g.user['role_id'] == 2 %}
+        <div class="btn-agregar-p">
+            <button type="button" class="btn btn-success" id="btn-agregar" data-bs-toggle="modal" data-bs-target="#addProductModal">
+                Añadir Producto
+            </button>
+        </div>
+        {% endif %}
+        <div class="table-responsive mt-4">
+
+            {% if productos %}
+            {% if g.user and g.user['role_id'] == 2 or g.user and g.user['role_id'] == 1  %}
+                {% with messages = get_flashed_messages() %}    
+                {% if messages %}
+                <br>
+                    {% for message in messages %}
+                        <div class="alert alert-warning alert-dissmissible" role="alert">
+                            <strong>{{ message }}</strong>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                {% endwith %}
+            {% endif %}
+            
+            <table class="table" id="product-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Precio</th>
+                        <th>Proveedor</th>
+                        <th>Stock</th>
+                        <th>Categoría</th>
+                        {% if g.user and g.user['role_id'] == 2 or g.user and g.user['role_id'] == 1  %}
+                        <th>Modificar</th>
+                        {% endif %}
+                        {% if g.user and g.user['role_id'] == 3  %}
+                        <th>Carrito</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                <!-- productos-->
+                    {% for data in productos %}
+                    <tr>
+                        <td>{{ data.prod_id }}</td>
+                        <td>{{ data.name_prod }}</td>
+                        <td>{{ data.desc_prod }}</td>
+                        <td>{{ data.price }}</td>
+                        <td>{{ data.name_supplier }}</td>
+                        <td>{{ data.stock }}</td>
+                        <td>{{ data.categ_name }}</td>
+                        {% if g.user and g.user['role_id'] == 2 or g.user and g.user['role_id'] == 1 %}
+                        <td>
+                            <button type="button" class="btn btn-warning" data-bs-toggle="modal"
+                                data-bs-target="#editProduct{{ data.prod_id }}">
+                                <i class="bi bi-pencil-fill"></i>
+                            </button>
+                            <!-- MODAL EDICION/MODIFICACION PRODUCTOS-->
+                            <div class="modal fade" id="editProduct{{ data.prod_id }}" tabindex="-1"
+                                aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="exampleModalLabel">Editar Producto</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                        </div>
+                                        
+                                        <div class="modal-body">
+                                            <form action="/edit_product/{{ data.prod_id }}" method="POST">
+                                                <div class="row mb-3">
+                                                    <div class="col-md-6">
+                                                        <label for="editName{{ data.prod_id }}" class="form-label">Nombre:</label>
+                                                        <input type="text" class="form-control" id="editName{{ data.prod_id }}" name="editName"
+                                                        value="{{ data.name_prod }}"required>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label for="editDesc{{ data.prod_id }}" class="form-label">Descripción:</label>
+                                                        <input type="text" class="form-control" id="editDesc{{ data.prod_id }}" name="editDesc"
+                                                        value="{{ data.name_prod }}" required>
+                                                    </div>
+                                                </div>
+                                                <!--div class="row mb-3">
+                                                    <div class="col-md-12">
+                                                        <label for="editImg{{ data.prod_id }}" class="form-label">Imagen:</label>
+                                                        <input type="file" class="form-control" id="editImg{{ data.prod_id }}" name="editImg"
+                                                        value="{{ data.img }}" required>
+                                                    </div>
+                                                </div-->
+                                                <div class="row mb-3">
+                                                    <div class="col-md-6">
+                                                        <label for="editPrice{{ data.prod_id }}" class="form-label">Precio:</label>
+                                                        <input type="text" class="form-control" id="editPrice{{ data.prod_id }}" name="editPrice"
+                                                        value="{{ data.price }}" required>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <!--label for="editSupplier{{ data.prod_id }}" class="form-label">Proveedor:</label>
+                                                        <input type="int" class="form-control" id="editSupplier{{ data.prod_id }}" name="editSupplier"
+                                                        value="{{ data.name_supplier }}" required-->
+                                                        <label for="editSupplier{{ data.prod_id }}" class="form-label">Proveedor:</label>
+                                                        <select class="form-control" id="editSupplier{{ data.prod_id }}" name="editSupplier" required>
+                                                            {% for prov in proveedor %}
+                                                            <option value="{{ prov.supp_id }}" {% if data.supplier==prov.supp_id %} selected {% endif%}>
+                                                                {{ prov.supp_name }}
+                                                            </option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="row mb-3">
+                                                    <div class="col-md-6">
+                                                        <label for="editStock{{ data.prod_id }}" class="form-label">Stock disponible:</label>
+                                                        <input type="number" class="form-control" id="editStock{{ data.prod_id }}" name="editStock"
+                                                        value="{{ data.stock }}"required>
+                                                    </div>
+                                                </div>
+                                                <div class="row mb-3">
+                                                    <div class="col-md-6">
+                                                        <label for="editCategory{{ data.prod_id }}" class="form-label">Categoría:</label>
+                                                        <select class="form-control" id="editCategory{{ data.prod_id }}" name="editCategory" required>
+                                                            {% for categ in categorias %}
+                                                            <option value="{{ categ.cat_id }}" {% if data.category==categ.cat_id %} selected {% endif %}>
+                                                                {{ categ.cat_name }}
+                                                            </option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                </div>         
+                                                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        {% endif %}
+                        {% if g.user and g.user['role_id'] == 3  %}
+                        <td>
+                            <button type="button" class="btn btn-info">
+                                <i class="bi bi-cart2"> Agregar</i>
+                            </button>
+                        </td>
+                        {% endif %}
+                    {% endfor %}
+                    </tr>
+                </tbody>
+            </table>
+            {% else %}
+            <p>No hay productos registrados</p>
+            {% endif %}
+        </div>
+    </div>
+    <!--MODAL AGREGAR PRODUCTOS-->
+    <div class="modal fade" id="addProductModal" tabindex="-1"aria-labelledby="exampleModalLabel2" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel2">Añadir Producto</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="/add_product" method="POST">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="addName" class="form-label">Nombre:</label>
+                                <input type="text" class="form-control" id="addName" name="addName" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="addDesc" class="form-label">Descripción:</label>
+                                <input type="text" class="form-control" id="addDesc" name="addDesc" required>
+                            </div>
+                        </div>
+                        <!--div class="row mb-3">
+                            <div class="col-md-12">
+                                <label for="addImg" class="form-label">Selecciona Imagen del producto:</label>
+                                <input type="file" class="form-control" id="addImg" name="addImg" accept=".jpg .png .jpeg" >
+                            </div>
+                        </div-->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="addprice" class="form-label">Precio:</label>
+                                <input type="number" class="form-control" id="addprice" name="addprice" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="addSupplier" class="form-label">Proveedor:</label>
+                                <select class="form-control" id="addSupplier" name="addSupplier" required>
+                                    <option selected disabled>Seleccione</option>
+                                    {% if proveedor %}
+                                        {% for prov in proveedor %}
+                                        <option value="{{ prov.supp_id }}" id="proveedor" name="proveedor">{{ prov.supp_name }}</option>
+                                        {% endfor %}
+                                    {% else %}
+                                        <option value="x" id="proveedor" name="proveedor" disabled>No hay proveedores</option>
+                                    {% endif %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="addStock" class="form-label">Stock:</label>
+                                <input type="number" class="form-control" id="addStock" name="addStock" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="addCategory" class="form-label">Categoría:</label>
+                                <select class="form-control" id="addCategory" name="addCategory" required>
+                                    <option selected disabled>Seleccione</option>
+                                    {% for categ in categorias %}
+                                    <option value="{{ categ.cat_id }}" id="categoria" name="categoria">{{ categ.cat_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>            
+                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                        <button type="button" class="btn btn-secondary " data-bs-dismiss="modal">Cancelar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    
+</main>
+<script src="{{ url_for('static', filename='js/search.js') }}"></script>
+
+{% endblock %}

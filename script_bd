@@ -1,0 +1,120 @@
+--------------------------------------------------------------------------------------------------------
+-- EJECUTAR ESTA SECCIÓN PRIMERO
+-------------------------------------------------------------------------------------------------------- 
+
+--DROP DATABASE parkhouse;
+
+CREATE DATABASE IF NOT EXISTS `parkhouse`;
+USE parkhouse;
+
+CREATE TABLE IF NOT EXISTS `roles` (
+  `role_id` int(30) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  PRIMARY KEY (`role_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+INSERT INTO `roles` (`role_id`, `name`) VALUES
+(1, 'admin'),
+(2, 'editor'),
+(3, 'visor'),
+
+-- CREATE TABLE IF NOT EXISTS `supplier` (
+--   `supp_id` int(30) AUTO_INCREMENT PRIMARY KEY,
+--   `supp_name` varchar(255) NOT NULL,
+--   `start_cont` DATE NOT NULL,
+--   `renew_cont` DATE NOT NULL,
+--   `address` varchar(255) NOT NULL,
+--   `contact` varchar(255) NOT NULL,
+--   `fono` INT NOT NULL,
+--   `transactions` varchar(255) NOT NULL,
+--   `description` varchar(255) NOT NULL
+-- ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+CREATE TABLE IF NOT EXISTS `categories` (
+  `cat_id` int(30) NOT NULL,
+  `cat_name` varchar(255) NOT NULL,
+  PRIMARY KEY (`cat_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Insert categories into the categories table
+INSERT INTO `categories` (`cat_id`, `cat_name`) VALUES
+(1, 'Herramienta Manual'),
+(2, 'Herramienta Eléctrica'),
+(3, 'Jardinería'),
+(4, 'Construcción'),
+(5, 'Fijación'),
+(6, 'Suministros Eléctricos'),
+(7, 'Pintura y Acabado'),
+(8, 'Fontanería'),
+(9, 'Decoración');
+
+--------------------------------------------------------------------------------------------------------
+-- EJECUTAR ESTA SECCIÓN SEGUNDO
+-------------------------------------------------------------------------------------------------------- 
+USE parkhouse;
+
+  CREATE TABLE IF NOT EXISTS `users` (
+    `user_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `username` varchar(255) NOT NULL,
+    `first_name` varchar(255) NOT NULL,
+    `last_name` varchar(255) NOT NULL,
+    `run` varchar(9) NOT NULL,
+    `dv` varchar(1) NOT NULL,
+    `password` varchar(255) NOT NULL,
+    `position` varchar(255) NOT NULL,
+    `role_id` int(11) NOT NULL,
+    PRIMARY KEY (`user_id`),
+    KEY `role_id` (`role_id`),
+    CONSTRAINT `fk_role_id` FOREIGN KEY (`role_id`) REFERENCES `roles` (`role_id`) ON DELETE CASCADE ON UPDATE CASCADE
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+INSERT INTO `users` (`user_id`,`username`, `first_name`, `last_name`, `run`, `dv`, `password`, `position`, `role_id`) VALUES
+('1','admin', 'admin', 'admin', '11111111', '1','admin', 'Administrador',1),
+('2','editor', 'editor', 'editor', '22222222', '2', 'editor', 'Editor', 2),
+('3','visor', 'visor', 'visor', '333333333', '3', 'visor', 'Visor',3);
+
+
+--------------------------------------------------------------------------------------------------------
+-- EJECUTAR ESTA SECCIÓN CUARTO
+-------------------------------------------------------------------------------------------------------- 
+USE parkhouse;
+
+DELIMITER $$
+
+CREATE TRIGGER generar_usuario
+BEFORE INSERT ON users
+FOR EACH ROW
+BEGIN
+    IF CHAR_LENGTH(NEW.first_name) <= 5 THEN
+        SET NEW.username = CONCAT(LOWER(NEW.first_name), '_', LOWER(NEW.last_name));
+    ELSE
+        SET NEW.username = CONCAT(LEFT(LOWER(NEW.first_name), 3), '_', LOWER(NEW.last_name));
+    END IF;
+    
+    SET NEW.username = REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(NEW.username, 'á', 'a'), 'é', 'e'), 'í', 'i'), 'ó', 'o'), 'ú', 'u'), 'ñ', 'n'), ' ', ''), ',', ''), '-', ''), '.', '');
+END$$
+
+DELIMITER ;
+--------------------------------------------------------------------------------------------------------
+-- EJECUTAR ESTA SECCIÓN QUINTO
+-------------------------------------------------------------------------------------------------------- 
+USE parkhouse;
+
+CREATE TABLE IF NOT EXISTS `products` (
+  `product_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name_prod` varchar(255) NOT NULL,
+  `desc_prod` varchar(255) NOT NULL,
+  `price` int(11) NOT NULL,
+  `supplier` varchar(255) NOT NULL,
+  `category` int(30) NOT NULL,
+  `stock` int(11) NOT NULL,
+  `img` blob NOT NULL,
+  PRIMARY KEY (`product_id`),
+  CONSTRAINT `fk_category_id` FOREIGN KEY (`category`) REFERENCES `categories` (`cat_id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+
+

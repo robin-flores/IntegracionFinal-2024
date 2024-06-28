@@ -1,0 +1,68 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} INICIAR SESIÓN {% endblock %}
+
+{% block customCSS %} 
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+{% endblock %}
+
+{% block body %} 
+
+    <div class="logo">
+        <i class="bi bi-box-seam-fill"></i>
+        <h1>MAESTRANZAS</h1>
+    </div>
+
+    <div class="container">
+        <div class="login-container">
+            {% if mensaje %}
+            <div class="alert alert-danger" role="alert">
+                {{ mensaje }}
+            </div>
+            {% endif %}
+
+            <form class="form-control" action="{{ url_for('login') }}" method="POST">
+                <div class="form-group p-2">
+                    <label for="inputUsername">Usuario:</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
+                        </div>
+                        <input type="text" class="form-control" id="inputUsername"
+                            placeholder="Ingresa nombre de usuario" name="inputUsername">
+                    </div>
+                </div>
+                <div class="form-group p-2">
+                    <label for="inputPassword">Contraseña:</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                        </div>
+                        <input type="password" class="form-control" id="inputPassword" placeholder="Ingresa contraseña"
+                            name="inputPassword">
+                        <button class="btn btn-secondary" type="button" id="togglePassword">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block p-2 btn-submit">INGRESAR</button>
+            </form>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        const togglePasswordButton = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('inputPassword');
+
+        togglePasswordButton.addEventListener('click', function () {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            togglePasswordButton.querySelector('i').classList.toggle('bi-eye');
+            togglePasswordButton.querySelector('i').classList.toggle('bi-eye-slash');
+        });
+    </script>
+
+
+{% endblock %}

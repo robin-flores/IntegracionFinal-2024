@@ -1,0 +1,183 @@
+{% extends 'layouts/base-user.html' %}
+
+{% block title %}Proveedores{% endblock %}
+
+{% block customCSS %} 
+<link rel="stylesheet" href="{{ url_for('static', filename='css/general.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/proveedor.css') }}">
+{% endblock %}
+
+{% block body %}
+<main>
+    <header>            
+        <h2 class="pb-3 pt-2">PROVEEDORES</h2>
+        
+        <div class="search">
+            <form class="d-flex mb-2 search" role="search">
+                <input class="form-control me-2" id="search-sup" type="search" placeholder="Buscar modificación" aria-label="Search" name="search_query">
+            </form>
+        </div>
+                    
+        <div class="dropdown-product ">
+            <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" id="dropdownProduct2" data-bs-toggle="dropdown" aria-expanded="false"> 
+                <strong>Ordenar por:</strong>
+            </a>
+            <ul class="dropdown-menu text-small shadow" aria-labelledby="dropdownProduct2">
+                <li><a class="dropdown-item" href="{{ url_for('show_supplier', sort_by='id') }}">ID</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('show_supplier', sort_by='nombre') }}">Proveedor</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('show_supplier', sort_by='direccion') }}">Dirección</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('show_supplier', sort_by='transacciones') }}">Transacciones</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('show_supplier', sort_by='i-contrato') }}">Fecha contrato</a></li>
+            </ul>
+        </div>
+    </header>
+    {% if g.user and g.user['role_id'] == 2 %}
+        <div class="btn-agregar-p">
+            <button type="button" class="btn btn-success" id="btn-agregar" data-bs-toggle="modal" data-bs-target="#addSupplierModal">
+                Añadir Proveedor
+            </button>
+        </div>
+        {% endif %}
+
+        <div class="table-responsive mt-4">
+        {% if proveedores %}
+        {% if g.user and g.user['role_id'] == 1 or g.user and g.user['role_id'] == 2 %}
+            {% with messages = get_flashed_messages() %}    
+                {% if messages %}
+                <br>
+                    {% for message in messages %}
+                        <div class="alert alert-warning alert-dissmissible" role="alert">
+                            <strong>{{ message }}</strong>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        {% endif %}   
+        <table class="table" id="supplier-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Proveedor</th>
+                    <th>Dirección</th>
+                    <th>Contacto</th>
+                    <th>Transacciones</th>
+                    <th>Inicio Contrato</th>
+                    <th>Termino Contrato</th>
+                    {% if g.user and g.user['role_id'] == 2 or g.user and g.user['role_id'] == 1  %}
+                    <th>Modificar</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in proveedores %}
+                <tr>
+                    <td>{{ p.supp_id }}</td>
+                    <td>{{ p.supp_name }}</td>
+                    <td>{{ p.address }}</td>
+                    <td>{{ p.contact }}</td>
+                    <td>{{ p.transactions }}</td>
+                    <td>{{ p.start_cont }}</td>
+                    <td>{{ p.renew_cont }}</td>
+                    {% if g.user and g.user['role_id'] == 2 or g.user and g.user['role_id'] == 1 %}
+                    <td>
+                        <button type="button" class="btn btn-warning" data-bs-toggle="modal"
+                            data-bs-target="#editSupplier{{ p.supp_id }}">
+                            <i class="bi bi-pencil-fill"></i>
+                        </button>
+                    <!-- MODAL EDICION/MODIFICACION PROVEEDORES-->
+                    <div class="modal fade" id="editSupplier{{ p.supp_id }}" tabindex="-1"
+                    aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel">Editar Producto</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form action="/edit_supplier/{{ p.supp_id }}" method="POST">
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="editName{{ p.supp_id }}" class="form-label">Nombre:</label>
+                                            <input type="text" class="form-control" id="editName{{ p.supp_id }}" name="editName"
+                                            value="{{ p.supp_name }}"required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="editAddress{{ p.supp_id }}" class="form-label">Dirección:</label>
+                                            <input type="text" class="form-control" id="editAddress{{ p.supp_id }}" name="editAddress"
+                                            value="{{ p.address }}" required>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="editContact{{ p.supp_id}}" class="form-label">Contacto:</label>
+                                            <input type="text" class="form-control" id="editContact{{ p.supp_id }}" name="editContact"
+                                            value="{{ p.contact }}" pattern="\d{9}" required>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="editTransaction{{ p.supp_id }}" class="form-label">Transacciones:</label>
+                                            <input type="text" class="form-control" id="editTransaction{{ p.supp_id }}" name="editTransaction"
+                                            value="{{ p.transactions }}" required>
+                                        </div>
+                                    </div>
+                                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </td>
+            {% endif %}
+
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No hay Proveedores registrados.</p> 
+        {% endif %}
+    </div>
+    <!--MODAL AGREGAR PROVEEDOR-->
+    <div class="modal fade" id="addSupplierModal" tabindex="-1"aria-labelledby="exampleModalLabel2" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel2">Añadir Proveedor</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="/add_supplier" method="POST">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="addName" class="form-label">Nombre Empresa:</label>
+                                <input type="text" class="form-control" id="addName" name="addName" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="addAddress" class="form-label">Dirección:</label>
+                                <input type="text" class="form-control" id="addAddress" name="addAddress" required>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="addContact" class="form-label">Contacto:</label>
+                                <input type="text" class="form-control" id="addContact" name="addContact" pattern="\d{9}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="addTransaction" class="form-label">Transacciones:</label>
+                                <input type="text" class="form-control" id="addTransaction" name="addTransaction" required>
+                            </div>
+                        </div>           
+                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                        <button type="button" class="btn btn-secondary " data-bs-dismiss="modal">Cancelar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+</main>
+<script src="{{ url_for('static', filename='js/search.js') }}"></script>
+
+{% endblock %}
