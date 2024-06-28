@@ -1,0 +1,161 @@
+{% extends 'layouts/base-user.html' %}
+
+{% block title %}Usuarios{% endblock %}
+
+{% block customCSS %} 
+<link rel="stylesheet" href="{{ url_for('static', filename='css/general.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/usuarios.css') }}">
+{% endblock %}
+
+{% block body %} 
+<main>
+    <div class="users-table">
+        <h2>Lista de Usuarios</h2>
+        
+        {% if usuarios %}
+        {% with messages = get_flashed_messages() %}    
+            {% if messages %}
+            <br>
+                {% for message in messages %}
+                    <div class="alert alert-warning alert-dissmissible" role="alert">
+                        <strong>{{ message }}</strong>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Nombre de Usuario</th>
+                    <th>Nombre Completo</th>
+                    <th>RUT</th>
+                    <th>Contraseña</th>
+                    <th>Rol</th>
+                    <th>Editar</th>
+                    <th>Eliminar</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for usuario in usuarios %}
+                <tr>
+                    <td>{{ usuario.user_id }}</td>
+                    <td>{{ usuario.username }}</td>
+                    <td>{{ usuario.first_name }} {{ usuario.last_name }}</td>
+                    <td>{{ usuario.run }} - {{ usuario.dvrun }}</td>
+                    <td>{{ usuario.password }}</td>
+                    <td>{{ usuario.rol_name }}</td>
+                    <td>
+                        <button type="button" class="btn btn-warning" data-bs-toggle="modal"
+                            data-bs-target="#editUser{{ usuario.user_id }}">
+                            <i class="bi bi-pencil-fill"></i>
+                        </button>
+                        <!-- Modal de edición usuario-->
+                        <div class="modal fade" id="editUser{{ usuario.user_id }}" tabindex="-1"
+                            aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLabel">Editar Usuario</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form action="/edit_user/{{ usuario.user_id }}" method="POST">
+                                            <div class="mb-3">
+                                                <label for="editUsername{{ usuario.user_id }}" class="form-label">Nombre de
+                                                    Usuario</label>
+                                                <input type="text" class="form-control" id="editUsername{{ usuario.user_id }}"
+                                                    name="editUsername" value="{{ usuario.username }}">
+                                            </div>
+                                            <div class="row mb-3">
+                                                <div class="col-md-6">
+                                                    <label for="editName{{ usuario.id }}" class="form-label">Nombre</label>
+                                                    <input type="text" class="form-control" id="editName{{ usuario.user_id }}"
+                                                        name="editName" value="{{ usuario.first_name }}">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="editLastName{{ usuario.user_id }}" class="form-label">Apellido</label>
+                                                    <input type="text" class="form-control" id="editLastName{{ usuario.user_id }}"
+                                                        name="editLastName" value="{{ usuario.last_name }}"> 
+                                                </div>
+                                            </div>
+                                            <div class="row mb-3">
+                                                <div class="col-md-7">
+                                                    <label for="editRut{{ usuario.user_id }}" class="form-label">Rut</label>
+                                                    <input type="int" class="form-control" id="editRut{{ usuario.user_id }}"
+                                                    name="editRut" value="{{ usuario.run }}" pattern="\d{7,8}">
+                                                </div>
+                                                
+                                                <div class="col-md-2 ">
+                                                    <label for="editDvRut{{ usuario.user_id }}" class="form-label">Dv</label>
+                                                    <input type="text" class="form-control" id="editDvRut{{ usuario.user_id }}"
+                                                    name="editDvRut" value="{{ usuario.dvrun }}" pattern=".{1,1}" required>
+                                                </div>
+                                                <small class="help-text">Sin puntos (Formato esperado: 00000000  -  0)</small>
+                                            </div>
+                                            <div class="mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="generatePassword{{ usuario.user_id }}" name="generatePassword">
+                                                    <label class="form-check-label" for="generatePassword{{ usuario.user_id }}">
+                                                        Generar nueva contraseña
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="editIdRol{{ usuario.user_id }}" class="form-label">Rol</label>
+                                                <select class="form-control" id="editIdRol{{ usuario.user_id }}" name="editIdRol">
+                                                    {% for rol in roles %}
+                                                    <option value="{{ rol.role_id }}" {% if usuario.role_id==rol.role_id %} selected {% endif%}>
+                                                        {{ rol.name }}
+                                                    </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                                            <button type="button" class="btn btn-secondary"
+                                                data-bs-dismiss="modal">Cancelar</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal"
+                            data-bs-target="#confirmDelete{{ usuario.id }}">
+                            <i class="bi bi-trash3-fill"></i>
+                        </button>
+                        <!-- Modal Eliminacion usuario-->
+                        <div class="modal fade" id="confirmDelete{{ usuario.id }}" tabindex="-1"
+                            aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLabel">Confirmación de Borrado</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        ¿Está seguro de que desea eliminar a este usuario?
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                        <form id="deleteForm" action="/eliminar_usuario/{{ usuario.id }}" method="POST">
+                                            <button type="submit" class="btn btn-danger">Confirmar</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No hay usuarios</p>
+        {% endif %}
+</main>
+{% endblock %}
