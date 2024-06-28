@@ -1,0 +1,38 @@
+html, body {
+    height: 100%;
+  }
+  
+  body {
+    align-items: center;
+    padding-bottom: 40px;
+  }
+  
+  .form-signup {
+      text-align: center;
+      width: 100%;
+      max-width: 500px;
+      padding: 15px;
+      margin: auto;
+      margin-top: 2rem;
+  }
+  
+  .form-signup .form-floating:focus-within {
+      z-index: 2;
+  }
+  
+  .form-floating{
+      margin-top: 10px;
+      margin-bottom: 5px;
+  }
+  .help-text{
+    display: block;
+    margin-left: 10px;
+    text-align: left !important;
+    font-size: 0.9em;
+    color: #b80b0b;
+  }
+  .btn-submit{
+      margin-top: 10px;
+      margin-bottom: 10px;
+  }
+  

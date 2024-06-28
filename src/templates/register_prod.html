@@ -1,0 +1,54 @@
+{% extends 'layouts/base-user.html' %}
+
+{% block title %}Registro{% endblock %}
+
+{% block customCSS %} 
+<link rel="stylesheet" href="{{ url_for('static', filename='css/registro.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/general.css') }}">
+{% endblock %}
+
+{% block body %} 
+<main>
+    <form class="form-signup"  action="{{ url_for('add_product')}}" method="POST">
+        <img class="mb-4" src="{{ url_for('static',filename='img/nuevo-usuario.png') }}" alt="icon_user" width="72" height="72">
+        <h1 class="h3 mb-3 fw-normal">Agregar Nuevo Producto</h1>
+        
+    
+        <div class="form-floating">
+            <input type="text" class="form-control" id="name" name="name" placeholder="Nombre" >
+            <label for="name">Nombre Producto</label>
+        </div>
+    
+        <div class="form-floating">
+            <input type="text-area" class="form-control" id="desc" name="desc" placeholder="Descripcion" >
+            <label for="desc">Descripción</label>
+        </div>
+
+
+        <div class="form-floating">
+            <input type="text" class="form-control" id="price" name="price" placeholder="Precio" >
+            <label for="price">Precio</label>
+        </div>
+
+        <div class="form-floating">
+            <label for="id_cat">Categorias - Elija una Categoria</label>
+            <select class="form-control" id="id_cat" name="id_cat" required>
+                <option selected disabled>
+                {% for category in categories %}
+                    <option value="{{ category.cat_id }}">{{ category.cat_name }}</option>
+                {% endfor %}
+                </option>
+            </select>
+        </div>
+        <div class="form-floating">
+            <input type="text" class="form-control" id="stock" name="stock" placeholder="Stock" >
+            <label for="stock">Stock</label>
+        </div>
+        </div>
+
+
+
+        <button class="w-100 btn-submit btn-lg btn-primary" id="btn-submit" type="submit">Agregar</button>
+    </form>
+</main>
+{% endblock %}

@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="static/css/styles.css">
+    <link rel="stylesheet" href="static/css/admin.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <title>ADMINISTRADOR</title>
+
+</head>
+
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <i class="bi bi-box-seam-fill"></i>
+            <p>PARKHOUSE</p>
+        </div>
+
+
+
+        <div class="user-info">
+            <p>Bienvenid@ <a href="#">{{ user_data.username }} !</a></p>
+        </div>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" onclick="showSection('usuarios')">
+                    <i class="bi bi-people-fill"></i> Usuarios
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" onclick="showSection('historial')">
+                    <i class="bi bi-clock-history"></i> Historial de Modificaciones
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" onclick="showSection()">
+                    <i class="bi bi-pencil"></i> Vista Editor
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" onclick="showSection()">
+                    <i class="bi bi-eye"></i> Vista Visor
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/logout">
+                    <i class="bi bi-door-closed"></i> Cerrar Sesión
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="contenido">
+
+        <div class="container-users section" id="usuarios">
+             {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div id="alert" class="alert alert-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <h3>Agregar usuario:</h3>
+            <form action="/add_user" method="POST">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label for="inputNombre">Nombre:</label>
+                        <input type="text" class="form-control mb-3" placeholder="Ingrese nombre" name="first_name"
+                            id="inputNombre">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="inputApellido">Apellido:</label>
+                        <input type="text" class="form-control mb-3" placeholder="Ingrese apellido" name="last_name"
+                            id="inputApellido">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="inputRUN">RUN:</label>
+                        <div class="d-flex">
+                            <input type="text" class="form-control mb-3" placeholder="Ingrese run" name="run" id="inputRun"
+                                maxlength="9">
+                            <p class="px-1">-</p>
+                            <input type="text" class="form-control mb-3" name="dv" id="inputDv" maxlength="1">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="inputPosition">Cargo:</label>
+                        <input type="text" class="form-control mb-3" placeholder="Ingrese cargo" name="position" id="inputPosition">
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label for="inputRole">Rol:</label>
+                            <select class="form-control" id="inputRole" name="role_id">
+                                <option value="1">Admin</option>
+                                <option value="2">Editor</option>
+                                <option value="3">Visor</option>
+                                <option value="4">Recursos</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary text-right     ">Agregar Usuario</button>
+            </form>
+
+            <div class="users-table">
+                <h3>Lista de Usuarios</h3>
+                {% if usuarios %}
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Nombre de Usuario</th>
+                            <th>Nombre</th>
+                            <th>Apellido</th>
+                            <th>RUN</th>
+                            <th>Cargo</th>
+                            <th>Rol</th>
+                            <th>Contraseña</th>
+                            <th>Editar</th>
+                            <th>Eliminar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for mostrar in usuarios %}
+                        <tr>
+                            <td>{{ mostrar.user_id }}</td>
+                            <td>{{ mostrar.username }}</td>
+                            <td>{{ mostrar.first_name }}</td>
+                            <td>{{ mostrar.last_name }}</td>
+                            <td>{{ mostrar.run }}-{{ mostrar.dv }}</td>
+                            <td>{{ mostrar.position }}</td>
+                            <td>
+                                {% if mostrar.role_id == 1 %}
+                                Admin
+                                {% elif mostrar.role_id == 2 %}
+                                Editor
+                                {% elif mostrar.role_id == 3 %}
+                                Visor
+                                {% elif mostrar.role_id == 4 %}
+                                Recursos
+                                {% endif %}
+                            </td>
+                            <td>
+                        <!-- <span class="password" id="password-{{ mostrar.user_id }}" data-password="{{ mostrar.password }}">********</span>
+                        <button class="btn btn-link" type="button" onclick="togglePassword({{ mostrar.user_id }})">
+                            <i class="bi bi-eye" id="toggle-icon-{{ mostrar.user_id }}"></i>
+                        </button> -->
+
+                            <td>
+                                <button type="button" class="btn btn-warning" data-bs-toggle="modal"
+                                    data-bs-target="#editUser{{ mostrar.user_id }}">
+                                    <i class="bi bi-pencil-fill"></i>
+                                </button>
+                                <!-- Modal de edición -->
+                                <div class="modal fade" id="editUser{{ mostrar.user_id }}" tabindex="-1"
+                                    aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="exampleModalLabel">Editar Usuario</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                    aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form action="/edit_user/{{ mostrar.user_id }}" method="POST">
+                                                    <div class="mb-3">
+                                                        <label for="editUsername" class="form-label">Nombre de Usuario</label>
+                                                        <input type="text" class="form-control" id="editUsername"
+                                                            name="editUsername" value="{{ mostrar.username }}">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="editFirstName" class="form-label">Nombre</label>
+                                                        <input type="text" class="form-control" id="editFirstName"
+                                                            name="editFirstName" value="{{ mostrar.first_name }}">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="editLastName" class="form-label">Apellido</label>
+                                                        <input type="text" class="form-control" id="editLastName"
+                                                            name="editLastName" value="{{ mostrar.last_name }}">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="inputRUN">RUN:</label>
+                                                        <div class="d-flex">
+                                                            <input type="text" class="form-control" id="editRun" name="editRun"
+                                                            value="{{ mostrar.run }}" maxlength="9">
+                                                            <p class="px-1">-</p>
+                                                            <input type="text" class="form-control mb-3" name="editDv" id="inputDv"  value="{{ mostrar.dv }}" maxlength="1">
+                                                        </div>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="editPosition" class="form-label">Cargo</label>
+                                                        <input type="text" class="form-control" id="editPosition"
+                                                            name="editPosition" value="{{ mostrar.position }}">
+                                                    </div>
+                                                   <div class="mb-3">
+                                                        <label for="editPassword" class="form-label">Contraseña</label>
+                                                        <div class="input-group">
+                                                            <input type="password" class="form-control" id="editPassword" placeholder="Ingresa contraseña" name="editPassword" value="{{ mostrar.password }}">
+                                                            <button class="btn btn-secondary toggle-password-button" type="button" data-target="editPassword">
+                                                                <i class="bi bi-eye"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="editIdRole" class="form-label">Rol</label>
+                                                        <select class="form-control" id="editIdRole" name="editIdRole">
+                                                            <option value="1" {% if mostrar.role_id==1 %} selected {% endif
+                                                                %}>Admin</option>
+                                                            <option value="2" {% if mostrar.role_id==2 %} selected {% endif
+                                                                %}>Editor</option>
+                                                            <option value="3" {% if mostrar.role_id==3 %} selected {% endif
+                                                                %}>Visor</option>
+                                                            <option value="4" {% if mostrar.role_id==4 %} selected {% endif
+                                                                %}>Recursos</option>
+                                                        </select>
+                                                    </div>
+                                                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                                                    <button type="button" class="btn btn-secondary"
+                                                        data-bs-dismiss="modal">Cancelar</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td>
+                                <button type="button" class="btn btn-danger" data-bs-toggle="modal"
+                                    data-bs-target="#confirmDelete{{ mostrar.user_id }}">
+                                    <i class="bi bi-trash3-fill"></i>
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="confirmDelete{{ mostrar.user_id }}" tabindex="-1"
+                                    aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="exampleModalLabel">Confirmación de eliminación
+                                                </h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                    aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                ¿Está seguro de que desea eliminar este usuario?
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary"
+                                                    data-bs-dismiss="modal">Cancelar</button>
+                                                <form id="deleteForm{{ mostrar.user_id }}"
+                                                    action="/delete_user/{{ mostrar.user_id }}" method="post">
+                                                    <button type="submit" class="btn btn-danger">Confirmar</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p>No hay usuarios</p>
+                {% endif %}
+            </div>
+
+
+
+
+
+
+
+    </div>
+     <div id="historial" class="section hidden">
+            <h2>Historial de Modificaciones</h2>
+
+        </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+
+</body>
+
+</html>
